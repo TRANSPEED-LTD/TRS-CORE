@@ -1,4 +1,4 @@
 # TS-CORE
 
 # About
-This is back-end core system repository for billion dollar startup project called TRANSPEED
+That's back-end core system repository for a billion-dollar startup project called TRANSPEED.

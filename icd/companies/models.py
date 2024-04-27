@@ -18,18 +18,6 @@ class Bank(TimestampMixin):
     bank_code = models.CharField(max_length=10, unique=True, null=False)
 
 
-class Iban(TimestampMixin):
-    """Model defining iban data."""
-
-    bank = models.ForeignKey(Bank, on_delete=models.CASCADE, null=False)
-    currency = models.CharField(max_length=10, choices=CurrencyTypes.choices(), null=True, default=None)
-    account_number = models.CharField(max_length=50, unique=True, null=True)
-    recipient = models.CharField(max_length=50, null=True, default=None)
-
-    def __str__(self):
-        return f"{self.bank.bank_name} | {self.recipient}"
-
-
 class Company(TimestampMixin):
     """Model defining companies data."""
 
@@ -40,7 +28,6 @@ class Company(TimestampMixin):
     contact_name = models.CharField(max_length=155, null=True, default=None)
     contact_number = models.CharField(max_length=15, null=True, default=None)
     contact_email = models.CharField(max_length=155, null=True, default=None)
-    ibans = models.ManyToManyField(Iban)
 
     class Meta:
         unique_together = ["name"]
@@ -50,6 +37,22 @@ class Company(TimestampMixin):
 
     def __str__(self):
         return f"{self.name} | {self.party_type} | {self.address}"
+
+
+class Iban(TimestampMixin):
+    """Model defining iban data."""
+
+    bank = models.ForeignKey(Bank, on_delete=models.CASCADE, null=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
+    currency = models.CharField(max_length=10, choices=CurrencyTypes.choices(), null=True, default=None)
+    account_number = models.CharField(max_length=50, null=True)
+    recipient = models.CharField(max_length=50, null=True, default=None)
+
+    class Meta:
+        unique_together = ["company", "account_number"]
+
+    def __str__(self):
+        return f"{self.bank.bank_name} | {self.recipient}"
 
 
 class PaymentDetail(TimestampMixin):

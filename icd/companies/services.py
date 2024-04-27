@@ -1,9 +1,13 @@
 """Services module for `companies` package."""
 
 from typing import Sequence
-from companies.repositories import CompanyRepository
-from companies import models, exceptions
+
 from django.db import transaction
+from django.core.exceptions import ValidationError
+
+from companies.repositories import CompanyRepository
+from companies.lib import types
+from companies import models, exceptions
 
 
 class CompanyServices:
@@ -64,6 +68,7 @@ class CompanyServices:
     def create_iban(
         self,
         bank_name: str,
+        company_name: str,
         currency: str,
         account_number: str,
         recipient: str,
@@ -72,13 +77,34 @@ class CompanyServices:
         Create IBAN instance.
 
         :param bank_name: Bank name.
+        :param company_name: Company name.
         :param currency: Currency for iban.
         :param account_number: Account number for iban.
         :param recipient: Recipient's juridical name for iban.
         :return: Created `models.Iban` instance.
 
         :raises IbanAlreadyExistError: If IBAN already exists.
+        :raises BankNotFoundError: If bank doesn't exist.
+        :raises CompanyNotFoundError: If company doesn't exist.''
         """
+        company = self.repository.get_company_by_name_or_vat(name=company_name)
+        if company is None:
+            raise exceptions.CompanyNotFoundError(f"Company `{company_name}` not exists for requested Iban")
+
+        bank = self.repository.get_bank_by_name(bank_name=bank_name)
+        if bank is None:
+            raise exceptions.BankNotFoundError()
+
+        try:
+            return self.repository.create_iban(
+                bank=bank,
+                company=company,
+                account_number=account_number,
+                recipient=recipient,
+                currency=currency,
+            )
+        except ValidationError as e:
+            raise exceptions.IbanAlreadyExistError(e.message)
 
     @transaction.atomic
     def create_company(
@@ -90,9 +116,10 @@ class CompanyServices:
         contact_name: str | None = None,
         contact_number: str | None = None,
         contact_email: str | None = None,
-    ):
+    ) -> types.Company:
         """
         Create company instance.
+
         :param name: Company's name.
         :param party_type: Type of company.
         :param address: Jurisdiction address for company.
@@ -100,7 +127,7 @@ class CompanyServices:
         :param contact_name: Company contact name.
         :param contact_number: Company contact number.
         :param contact_email: Company contact email.
-        :return: Created `models.Company` instance.
+        :return: Serialized `models.Company` instance.
 
         :raises CompanyAlreadyExists: If company already exists with requested name.
         :raises CompanyContactInformationNotProvidedError: If no contact info provided for company.
@@ -113,7 +140,7 @@ class CompanyServices:
         if not any([contact_name, contact_email, contact_number]):
             raise exceptions.CompanyContactInformationNotProvidedError()
 
-        return models.Company.objects.create(
+        company = models.Company.objects.create(
             name=name,
             party_type=party_type,
             address=address,
@@ -121,6 +148,28 @@ class CompanyServices:
             contact_name=contact_name,
             contact_email=contact_email,
             contact_number=contact_number,
+        )
+
+        return self._serialize_company(company=company)
+
+    def _serialize_company(self, company: models.Company) -> types.Company:
+        """
+        Serialize `models.Company` instance.
+
+        :param company: `models.Company` instance to serialize.
+        :return: Serialized `models.Company` instance.
+        """
+
+        return types.Company(
+            name=company.name,
+            party_type=company.party_type,
+            address=company.address,
+            vat_number=company.vat_number,
+            contact_name=company.contact_name,
+            contact_number=company.contact_number,
+            contact_email=company.contact_email,
+            ibans=[],
+            # active_orders=None,
         )
 
 

@@ -65,3 +65,11 @@ class IbanNotFoundError(WebHttpException):
     status_code = 400
     default_detail = "Iban not found."
     default_code = "iban_not_found"
+
+
+class BankNotFoundError(WebHttpException):
+    """Raised if Bank not found."""
+
+    status_code = 400
+    default_detail = "Bank not found."
+    default_code = "bank_not_found"

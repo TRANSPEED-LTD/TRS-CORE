@@ -1,7 +1,5 @@
 """Services module for `companies` package."""
 
-from typing import Sequence
-
 from django.db import transaction
 from django.core.exceptions import ValidationError
 

@@ -1,5 +1,5 @@
 from django.db import models
-from companies.lib.enum import CompanyPartyTypes, PaymentDetailsTypes, CurrencyTypes
+from companies.lib.enum import CompanyParty, PaymentDetails, Currency
 
 
 class TimestampMixin(models.Model):
@@ -22,7 +22,7 @@ class Company(TimestampMixin):
     """Model defining companies data."""
 
     name = models.CharField(max_length=155, unique=True, null=False)
-    party_type = models.CharField(max_length=30, choices=CompanyPartyTypes.choices(), null=True, default=None)
+    party_type = models.CharField(max_length=30, choices=CompanyParty.choices(), null=True, default=None)
     address = models.CharField(max_length=155, null=True, default=None)
     vat_number = models.CharField(max_length=15, null=True, default=None)
     contact_name = models.CharField(max_length=155, null=True, default=None)
@@ -44,7 +44,7 @@ class Iban(TimestampMixin):
 
     bank = models.ForeignKey(Bank, on_delete=models.CASCADE, null=False)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
-    currency = models.CharField(max_length=10, choices=CurrencyTypes.choices(), null=True, default=None)
+    currency = models.CharField(max_length=10, choices=Currency.choices(), null=True, default=None)
     account_number = models.CharField(max_length=50, null=True)
     recipient = models.CharField(max_length=50, null=True, default=None)
 
@@ -58,7 +58,7 @@ class Iban(TimestampMixin):
 class PaymentDetail(TimestampMixin):
     """Model defining payment details."""
 
-    type = models.CharField(max_length=30, choices=PaymentDetailsTypes.choices(), null=True, default=None)
+    type = models.CharField(max_length=30, choices=PaymentDetails.choices(), null=True, default=None)
     receiver_company = models.ForeignKey(
         Company,
         on_delete=models.SET_NULL,
@@ -85,7 +85,7 @@ class PaymentDetail(TimestampMixin):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
     vat = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
     total = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
-    currency = models.CharField(max_length=10, choices=CurrencyTypes.choices(), null=True, default=None)
+    currency = models.CharField(max_length=10, choices=Currency.choices(), null=True, default=None)
 
     class Meta:
         indexes = [

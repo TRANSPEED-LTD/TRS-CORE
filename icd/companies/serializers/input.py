@@ -1,7 +1,7 @@
 """Module with output serializers for `company/*` endpoints."""
 from rest_framework import serializers
 from abstract_icd.serializers.base import BasicSerializer
-from companies.lib.enum import CompanyPartyTypes
+from companies.lib.enum import CompanyParty
 
 
 class Iban(BasicSerializer):
@@ -24,7 +24,7 @@ class CompanyToCreateRequest(BasicSerializer):
     """Serializer to input Company details to create."""
 
     name = serializers.CharField(allow_null=False)
-    party_type = serializers.ChoiceField(choices=CompanyPartyTypes.choices())
+    party_type = serializers.ChoiceField(choices=CompanyParty.choices())
     address = serializers.CharField(allow_null=False)
     vat_number = serializers.CharField(allow_null=False)
     contact_name = serializers.CharField(allow_null=True, required=False)

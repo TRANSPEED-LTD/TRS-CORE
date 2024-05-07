@@ -12,3 +12,9 @@ class UserResponse(BasicSerializer):
     email = serializers.EmailField()
     phone_number = serializers.CharField()
     token = serializers.CharField()
+
+
+class PongResponse(BasicSerializer):
+    """Serializer to output ping."""
+
+    pong = serializers.CharField(default="PONG")

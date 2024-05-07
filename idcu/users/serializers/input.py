@@ -19,3 +19,9 @@ class UserToLogin(BasicSerializer):
 
     email = serializers.EmailField(allow_null=False, required=True)
     password = serializers.CharField(write_only=True, allow_null=False, required=True)
+
+
+class Ping(BasicSerializer):
+    """Serializer to input for ping view."""
+
+    ping = serializers.CharField(required=True)

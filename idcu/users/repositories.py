@@ -1,12 +1,16 @@
 """Repository module for `users`."""
 
+from companies.models import Company
 from users.models import TRSUser
+
+from django.db import transaction
 from rest_framework.authtoken.models import Token
 
 
 class UserRepository:
     """Repository class for `users`."""
 
+    @transaction.atomic
     def create_trs_user(
         self,
         first_name: str,
@@ -35,6 +39,16 @@ class UserRepository:
             phone_number=phone_number,
             password=password,
         )
+
+    def add_company_to_user(self, user: TRSUser, company: Company) -> None:
+        """
+        Add company to user.
+
+        :param user: `models.TRSUser` instance to add company for.
+        :param company: `models.company` instance for user.
+        """
+        user.company = company
+        user.save()
 
     def get_or_create_token(self, user: TRSUser) -> Token:
         """

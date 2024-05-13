@@ -35,5 +35,5 @@ class CompanyToCreateRequest(BasicSerializer):
 class CompanyToFetchRequest(BasicSerializer):
     """Serializer to input Company identifier details to fetch."""
 
-    name = serializers.CharField(allow_null=True)
-    vat_number = serializers.CharField(allow_null=True)
+    name = serializers.CharField(allow_null=True, required=False)
+    vat_number = serializers.CharField(allow_null=True, required=False)

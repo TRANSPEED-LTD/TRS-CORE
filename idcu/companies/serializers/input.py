@@ -4,20 +4,12 @@ from abstract_idcu.serializers.base import BasicSerializer
 from companies.lib.enum import CompanyParty
 
 
-class Iban(BasicSerializer):
-    """Serializer for Iban output details."""
+class IbanToCreate(BasicSerializer):
+    """Serializer for Iban input details to create."""
 
-    bank_name: serializers.CharField()
-    company_name: serializers.CharField()
-    currency: serializers.CharField()
-    account_number: serializers.CharField()
-    recipient: serializers.CharField()
-
-
-class IbansToCreateRequest(BasicSerializer):
-    """Serializer to input Ibans details to create."""
-
-    ibans = serializers.ListField(child=Iban())
+    bank_name = serializers.CharField(required=True)
+    currency = serializers.CharField(required=True)
+    account_number = serializers.CharField(required=True)
 
 
 class CompanyToCreateRequest(BasicSerializer):
@@ -30,6 +22,7 @@ class CompanyToCreateRequest(BasicSerializer):
     contact_name = serializers.CharField(allow_null=True, required=False)
     contact_number = serializers.CharField(allow_null=True, required=False)
     contact_email = serializers.CharField(allow_null=True, required=False)
+    ibans = serializers.ListField(child=IbanToCreate(), required=False)
 
 
 class CompanyToFetchRequest(BasicSerializer):

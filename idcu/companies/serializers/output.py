@@ -6,11 +6,9 @@ from abstract_idcu.serializers.base import BasicSerializer
 class Iban(BasicSerializer):
     """Serializer for Iban details."""
 
-    bank_name: serializers.CharField()
-    company_name: serializers.CharField()
-    currency: serializers.CharField()
-    account_number: serializers.CharField()
-    recipient: serializers.CharField()
+    bank_name = serializers.CharField()
+    currency = serializers.CharField()
+    account_number = serializers.CharField()
 
 
 class CompanyResponse(BasicSerializer):

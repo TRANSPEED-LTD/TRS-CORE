@@ -1,7 +1,5 @@
 """Repositories module for `Company` model."""
 
-from typing import Sequence
-
 from companies import models, exceptions
 from django.db.models import Q
 
@@ -69,8 +67,7 @@ class CompanyRepository:
         company: models.Company,
         currency: str,
         account_number: str,
-        recipient: str,
-    ):
+    ) -> models.Iban:
         """
         Create IBAN instance.
 
@@ -78,7 +75,6 @@ class CompanyRepository:
         :param company: `models.Company` instance.
         :param currency: Currency for iban.
         :param account_number: Account number for iban.
-        :param recipient: Recipient's juridical name for iban.
         :return: Created `models.Iban` instance.
 
         :raises ValidationError: If creation fails with db constraints.
@@ -88,7 +84,6 @@ class CompanyRepository:
             company=company,
             currency=currency,
             account_number=account_number,
-            recipient=recipient,
         )
 
     def get_bank_by_name(self, bank_name: str) -> models.Bank | None:

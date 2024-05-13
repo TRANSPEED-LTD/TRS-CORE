@@ -1,6 +1,8 @@
 """Models module for `companies` package."""
+from functools import cached_property
 
 from django.db import models
+from django.db.models import QuerySet
 from companies.lib.enum import CompanyParty, PaymentDetails, Currency
 
 
@@ -18,6 +20,9 @@ class Bank(TimestampMixin):
 
     bank_name = models.CharField(max_length=30, unique=True, null=False)
     bank_code = models.CharField(max_length=10, unique=True, null=False)
+
+    def __str__(self):
+        return f"{self.bank_name} | {self.bank_code}"
 
 
 class Company(TimestampMixin):
@@ -37,6 +42,10 @@ class Company(TimestampMixin):
             models.Index(fields=["name", "vat_number"]),
         ]
 
+    @cached_property
+    def ibans(self) -> QuerySet:
+        return self.iban_set.all()
+
     def __str__(self):
         return f"{self.name} | {self.party_type} | {self.address}"
 
@@ -48,10 +57,19 @@ class Iban(TimestampMixin):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=False)
     currency = models.CharField(max_length=10, choices=Currency.choices(), null=True, default=None)
     account_number = models.CharField(max_length=50, null=True)
-    recipient = models.CharField(max_length=50, null=True, default=None)
 
     class Meta:
         unique_together = ["company", "account_number"]
+
+    @cached_property
+    def recipient(self) -> str:
+        """Get recipient company name."""
+        return self.company.name
+
+    @cached_property
+    def bank_name(self) -> str:
+        """Get bank name."""
+        return self.bank.bank_name
 
     def __str__(self):
         return f"{self.bank.bank_name} | {self.recipient}"

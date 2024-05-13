@@ -8,6 +8,7 @@ from users.models import TRSUser
 from companies.repositories import CompanyRepository
 from users.repositories import UserRepository
 from companies.lib import types
+from companies.lib.utils import check_iban_validity
 from companies import models, exceptions
 
 
@@ -17,22 +18,6 @@ class CompanyServices:
     def __init__(self):
         self.company_repository = CompanyRepository()
         self.user_repository = UserRepository()
-
-    def fetch_iban_by_bank_name_and_account_number(self, account_number: str, bank_name: str) -> models.Iban:
-        """
-        Fetch iban by account number.
-
-        :param account_number: Iban's unique account number.
-        :return: `models.Iban` instance.
-
-        :raises IbanNotFoundError: If iban not found.
-        """
-        bank = self.company_repository.get_bank_by_name(bank_name=bank_name)
-        iban = self.company_repository.get_iban_by_bank_and_account_number(account_number=account_number, bank=bank)
-        if iban is None:
-            raise exceptions.IbanNotFoundError(f"IBAN not found by account number `{account_number}`")
-
-        return iban
 
     def fetch_company_by_vat(self, vat: str) -> types.Company:
         """
@@ -60,7 +45,6 @@ class CompanyServices:
         :raises CompanyNotFoundError: If company doesn't exist by requested name.
         """
         company = self.company_repository.get_company_by_name_or_vat(name=name)
-
         if company is None:
             raise exceptions.CompanyNotFoundError(f"Company not found by name `{name}`")
 
@@ -69,42 +53,37 @@ class CompanyServices:
     @transaction.atomic
     def create_iban(
         self,
+        company: models.Company,
         bank_name: str,
-        company_name: str,
         currency: str,
         account_number: str,
-        recipient: str,
-    ):
+    ) -> types.Iban:
         """
         Create IBAN instance.
 
         :param bank_name: Bank name.
-        :param company_name: Company name.
+        :param company: `models.Company` instance.
         :param currency: Currency for iban.
         :param account_number: Account number for iban.
-        :param recipient: Recipient's juridical name for iban.
-        :return: Created `models.Iban` instance.
+        :return: Serialized `models.Iban` instance.
 
         :raises IbanAlreadyExistError: If IBAN already exists.
         :raises BankNotFoundError: If bank doesn't exist.
-        :raises CompanyNotFoundError: If company doesn't exist.''
         """
-        company = self.company_repository.get_company_by_name_or_vat(name=company_name)
-        if company is None:
-            raise exceptions.CompanyNotFoundError(f"Company `{company_name}` not exists for requested Iban")
-
         bank = self.company_repository.get_bank_by_name(bank_name=bank_name)
         if bank is None:
             raise exceptions.BankNotFoundError()
 
+        check_iban_validity(account_number=account_number, bank_code=bank.bank_code)
         try:
-            return self.company_repository.create_iban(
+            iban = self.company_repository.create_iban(
                 bank=bank,
                 company=company,
                 account_number=account_number,
-                recipient=recipient,
                 currency=currency,
             )
+            return self._serialize_iban(iban=iban)
+
         except ValidationError as e:
             raise exceptions.IbanAlreadyExistError(e.message)
 
@@ -115,6 +94,7 @@ class CompanyServices:
         party_type: str,
         address: str,
         vat_number: str,
+        ibans: list[types.Iban],
         user: TRSUser,
         contact_name: str | None = None,
         contact_number: str | None = None,
@@ -127,6 +107,7 @@ class CompanyServices:
         :param party_type: Type of company.
         :param address: Jurisdiction address for company.
         :param vat_number: VAT number for company.
+        :param ibans: List of company's IBANs.
         :param user: `models.User` instance (Company's main user).
         :param contact_name: Company contact name.
         :param contact_number: Company contact number.
@@ -149,10 +130,17 @@ class CompanyServices:
             party_type=party_type,
             address=address,
             vat_number=vat_number,
-            contact_name=contact_name,
-            contact_email=contact_email,
-            contact_number=contact_number,
+            contact_email=user.email,
+            contact_number=user.phone_number,
         )
+
+        for iban in ibans:
+            self.create_iban(
+                company=company,
+                bank_name=iban["bank_name"],
+                currency=iban["currency"],
+                account_number=iban["account_number"],
+            )
 
         self.user_repository.add_company_to_user(user=user, company=company)
 
@@ -165,6 +153,7 @@ class CompanyServices:
         :param company: `models.Company` instance to serialize.
         :return: Serialized `models.Company` instance.
         """
+        ibans = [self._serialize_iban(iban) for iban in company.ibans]
 
         return types.Company(
             name=company.name,
@@ -174,8 +163,22 @@ class CompanyServices:
             contact_name=company.contact_name,
             contact_number=company.contact_number,
             contact_email=company.contact_email,
-            ibans=[],
+            ibans=ibans,
             # active_orders=None,
+        )
+
+    def _serialize_iban(self, iban: models.Iban) -> types.Iban:
+        """
+        Serialize `models.Iban` instance.
+
+        :param iban: `models.Iban` instance to serialize.
+        :return: Serialized `models.Iban` instance.
+        """
+
+        return types.Iban(
+            bank_name=iban.bank_name,
+            account_number=iban.account_number,
+            currency=iban.currency,
         )
 
 

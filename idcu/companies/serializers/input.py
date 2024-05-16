@@ -37,7 +37,11 @@ class CompanyToCreateRequest(BasicSerializer):
 
 
 class CompanyToUpdateRequest(BasicSerializer):
-    """Serializer to input Company details to create."""
+    """
+    Serializer to input Company details to update.
+
+    Clean unuseful data, we don't need for next processes.
+    """
 
     name = serializers.CharField(allow_null=False, required=True)
     party_type = serializers.ChoiceField(choices=CompanyParty.choices(), required=True)
@@ -48,25 +52,12 @@ class CompanyToUpdateRequest(BasicSerializer):
     def validate(self, data):
         """Custom validation method for fields."""
 
-        party_type = data['party_type']
+        party_type = data.pop('party_type')
         ibans = data.get('ibans')
 
         if (party_type == CompanyParty.SHIPPER.value or CompanyParty.CAREER.value) and ibans is None:
             raise ValidationError("At least one IBAN should be provided for company.")
 
-        return data
-
-    def to_representation(self, instance: Any) -> Any:
-        """
-        Custom representation for validated data.
-
-        Clean unuseful data, we don't need for next processes.
-
-        :param instance: `CompanyToUpdateRequest` instance.
-        :return:
-        """
-        data = super().to_representation(instance)
-        data.pop("party_type")
         return data
 
 

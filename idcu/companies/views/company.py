@@ -50,8 +50,7 @@ class CompanyUpdateView(BaseCompanyView, IDCUView):
         :param request_params: Request parameters.
         :return: Serialized response.
         """
-        user = self.request.user
-        response_data = self.service_class.update_company(**request_params, user=user)
+        response_data = self.service_class.update_company(**request_params)
 
         return CompanyResponse(response_data).data
 

@@ -6,10 +6,8 @@ from typing import TypedDict
 class Iban(TypedDict):
     """Iban details."""
     bank_name: str
-    company_name: str
     currency: str
     account_number: str
-    recipient: str
 
 
 class Company(TypedDict):

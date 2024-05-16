@@ -1,7 +1,5 @@
 """Repositories module for `Company` model."""
 
-from typing import Sequence
-
 from companies import models, exceptions
 from django.db.models import Q
 
@@ -44,6 +42,26 @@ class CompanyRepository:
 
         return company
 
+    def update_company(
+        self,
+        company: models.Company,
+        name: str,
+        address: str,
+    ) -> models.Company:
+        """
+        Update company instance.
+
+        :param company: Company to update.
+        :param name: Company's name.
+        :param address: Company's address.
+        :return: Updated `models.Company` instance.
+        """
+        company.name = name
+        company.address = address
+        company.save()
+
+        return company
+
     def get_company_by_name_or_vat(self, name: str | None = None, vat: str | None = None) -> models.Company | None:
         """
         Get company by name.
@@ -63,14 +81,13 @@ class CompanyRepository:
         except models.Company.DoesNotExist:
             return None
 
-    def create_iban(
+    def create_ibans_for_company(
         self,
         bank: models.Bank,
         company: models.Company,
         currency: str,
         account_number: str,
-        recipient: str,
-    ):
+    ) -> models.Iban:
         """
         Create IBAN instance.
 
@@ -78,7 +95,6 @@ class CompanyRepository:
         :param company: `models.Company` instance.
         :param currency: Currency for iban.
         :param account_number: Account number for iban.
-        :param recipient: Recipient's juridical name for iban.
         :return: Created `models.Iban` instance.
 
         :raises ValidationError: If creation fails with db constraints.
@@ -88,8 +104,16 @@ class CompanyRepository:
             company=company,
             currency=currency,
             account_number=account_number,
-            recipient=recipient,
         )
+
+    def delete_ibans_for_company(self, company: models.Company) -> None:
+        """
+        Delete IBAN instances.
+
+        :param company: `models.Company` instance.
+        """
+        models.Iban.objects.filter(company=company).delete()
+
 
     def get_bank_by_name(self, bank_name: str) -> models.Bank | None:
         """

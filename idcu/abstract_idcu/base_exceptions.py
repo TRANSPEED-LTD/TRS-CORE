@@ -17,3 +17,11 @@ class WebHttpException(Exception):
         self.error_code: str = self.default_code if code is None else code
 
         super().__init__(self.detail, self.error_code)
+
+
+class PermissionNotPermitted(WebHttpException):
+    """Raised when user is requested for not permitted data."""
+
+    status_code = 404
+    default_detail = "User have not access to requested data."
+    default_code = "access_not_permitted"

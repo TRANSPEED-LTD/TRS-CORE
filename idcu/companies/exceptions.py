@@ -51,6 +51,14 @@ class IbanNotFoundError(WebHttpException):
     default_code = "iban_not_found"
 
 
+class InvalidIbanRequestedError(WebHttpException):
+    """Raised if invalid Iban requested."""
+
+    status_code = 403
+    default_detail = "Invalid iban requested."
+    default_code = "invalid_iban_requested"
+
+
 class BankNotFoundError(WebHttpException):
     """Raised if Bank not found."""
 

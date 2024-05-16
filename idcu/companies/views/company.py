@@ -6,7 +6,7 @@ from abstract_idcu.views.base import IDCUView
 from abstract_idcu.base_permissions import HasSpecificCompanyPermission
 from companies.views.base import BaseCompanyView
 from companies.serializers.output import CompanyResponse
-from companies.serializers.input import CompanyToCreateRequest, CompanyToFetchRequest
+from companies.serializers.input import CompanyToCreateRequest, CompanyToUpdateRequest, CompanyToFetchRequest
 from companies.exceptions import CompanyIdentifiersNotProvidedError
 
 from rest_framework.decorators import authentication_classes, permission_classes
@@ -31,6 +31,27 @@ class CompanyCreateView(BaseCompanyView, IDCUView):
         """
         user = self.request.user
         response_data = self.service_class.create_company(**request_params, user=user)
+
+        return CompanyResponse(response_data).data
+
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated, HasSpecificCompanyPermission])
+class CompanyUpdateView(BaseCompanyView, IDCUView):
+    """Handles request to the `company/<str:update-company>/` endpoint."""
+
+    http_method_names = ['post']
+    in_serializer_cls = CompanyToUpdateRequest
+
+    def process_request(self, request_params: Any) -> CompanyResponse:
+        """
+        process request for `company/update-company/` endpoint.
+
+        :param request_params: Request parameters.
+        :return: Serialized response.
+        """
+        user = self.request.user
+        response_data = self.service_class.update_company(**request_params, user=user)
 
         return CompanyResponse(response_data).data
 

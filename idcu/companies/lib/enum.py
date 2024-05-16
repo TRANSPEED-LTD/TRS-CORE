@@ -15,6 +15,7 @@ class CompanyParty(ModelChoice):
     """Company party types."""
     SHIPPER = "SHIPPER"
     FORWARDER = "FORWARDER"
+    CAREER = "CAREER"
 
 
 class PaymentDetails(ModelChoice):

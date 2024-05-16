@@ -51,7 +51,7 @@ class CompanyServices:
         return self._serialize_company(company=company)
 
     @transaction.atomic
-    def create_iban(
+    def create_ibans_for_company(
         self,
         company: models.Company,
         bank_name: str,
@@ -76,7 +76,7 @@ class CompanyServices:
 
         check_iban_validity(account_number=account_number, bank_code=bank.bank_code)
         try:
-            iban = self.company_repository.create_iban(
+            iban = self.company_repository.create_ibans_for_company(
                 bank=bank,
                 company=company,
                 account_number=account_number,
@@ -88,6 +88,44 @@ class CompanyServices:
             raise exceptions.IbanAlreadyExistError(e.message)
 
     @transaction.atomic
+    def update_ibans_for_company(
+        self,
+        company: models.Company,
+        bank_name: str,
+        currency: str,
+        account_number: str,
+    ) -> None:
+        """
+        Update IBAN instances for company.
+
+        :param bank_name: Bank name.
+        :param company: `models.Company` instance.
+        :param currency: Currency for iban.
+        :param account_number: Account number for iban.
+        :return: Serialized `models.Iban` instance.
+
+        :raises IbanAlreadyExistError: If IBAN already exists.
+        :raises BankNotFoundError: If bank doesn't exist.
+        """
+        self.delete_ibans_for_company(company=company)
+        self.create_ibans_for_company(
+            company=company,
+            bank_name=bank_name,
+            currency=currency,
+            account_number=account_number,
+        )
+
+    @transaction.atomic
+    def delete_ibans_for_company(self, company: models.Company) -> None:
+        """
+        Delete IBAN instances for company.
+
+        :param company: `models.Company` instance.
+        :return: None.
+        """
+        self.company_repository.delete_ibans_for_company(company=company)
+
+    @transaction.atomic
     def create_company(
         self,
         name: str,
@@ -96,9 +134,6 @@ class CompanyServices:
         vat_number: str,
         ibans: list[types.Iban],
         user: TRSUser,
-        contact_name: str | None = None,
-        contact_number: str | None = None,
-        contact_email: str | None = None,
     ) -> types.Company:
         """
         Create company instance.
@@ -109,21 +144,14 @@ class CompanyServices:
         :param vat_number: VAT number for company.
         :param ibans: List of company's IBANs.
         :param user: `models.User` instance (Company's main user).
-        :param contact_name: Company contact name.
-        :param contact_number: Company contact number.
-        :param contact_email: Company contact email.
         :return: Serialized `models.Company` instance.
 
         :raises CompanyAlreadyExists: If company already exists with requested name.
-        :raises CompanyContactInformationNotProvidedError: If no contact info provided for company.
         """
         if self.company_repository.get_company_by_name_or_vat(vat=vat_number, name=name):
             raise exceptions.CompanyAlreadyExistError(
                 f"Company already exists by provided VAT `{vat_number}` or NAME `{name}`"
             )
-
-        if not any([contact_name, contact_email, contact_number]):
-            raise exceptions.CompanyContactInformationNotProvidedError()
 
         company = self.company_repository.create_company(
             name=name,
@@ -135,7 +163,7 @@ class CompanyServices:
         )
 
         for iban in ibans:
-            self.create_iban(
+            self.create_ibans_for_company(
                 company=company,
                 bank_name=iban["bank_name"],
                 currency=iban["currency"],
@@ -145,6 +173,43 @@ class CompanyServices:
         self.user_repository.add_company_to_user(user=user, company=company)
 
         return self._serialize_company(company=company)
+
+    @transaction.atomic
+    def update_company(
+        self,
+        name: str,
+        address: str,
+        vat_number: str,
+        ibans: list[types.Iban],
+    ) -> None:
+        """
+        Update company instance.
+
+        :param name: Company's name.
+        :param address: Jurisdiction address for company.
+        :param vat_number: VAT number for company.
+        :param ibans: List of company's IBANs.
+        :return: None.
+        """
+        company = self.company_repository.get_company_by_name_or_vat(vat=vat_number)
+        if company is None:
+            raise exceptions.CompanyNotFoundError(
+                f"Company not found by provided VAT `{vat_number}`"
+            )
+
+        company = self.company_repository.update_company(
+            company=company,
+            name=name,
+            address=address,
+        )
+
+        for iban in ibans:
+            self.update_ibans_for_company(
+                company=company,
+                bank_name=iban["bank_name"],
+                currency=iban["currency"],
+                account_number=iban["account_number"],
+            )
 
     def _serialize_company(self, company: models.Company) -> types.Company:
         """
@@ -180,5 +245,3 @@ class CompanyServices:
             account_number=iban.account_number,
             currency=iban.currency,
         )
-
-

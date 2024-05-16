@@ -181,7 +181,7 @@ class CompanyServices:
         address: str,
         vat_number: str,
         ibans: list[types.Iban],
-    ) -> None:
+    ) -> types.Company:
         """
         Update company instance.
 
@@ -189,7 +189,7 @@ class CompanyServices:
         :param address: Jurisdiction address for company.
         :param vat_number: VAT number for company.
         :param ibans: List of company's IBANs.
-        :return: None.
+        :return: Serialized updated `models.Company` instance.
         """
         company = self.company_repository.get_company_by_name_or_vat(vat=vat_number)
         if company is None:
@@ -210,6 +210,8 @@ class CompanyServices:
                 currency=iban["currency"],
                 account_number=iban["account_number"],
             )
+
+        return self._serialize_company(company)
 
     def _serialize_company(self, company: models.Company) -> types.Company:
         """

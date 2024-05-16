@@ -47,18 +47,20 @@ class CompanyRepository:
         company: models.Company,
         name: str,
         address: str,
-    ):
+    ) -> models.Company:
         """
         Update company instance.
 
         :param company: Company to update.
         :param name: Company's name.
         :param address: Company's address.
-        :return: None.
+        :return: Updated `models.Company` instance.
         """
         company.name = name
         company.address = address
         company.save()
+
+        return company
 
     def get_company_by_name_or_vat(self, name: str | None = None, vat: str | None = None) -> models.Company | None:
         """

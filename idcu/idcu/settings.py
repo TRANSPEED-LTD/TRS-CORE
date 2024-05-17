@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # our apps
     'companies.apps.CompaniesConfig',
     'users.apps.UsersConfig',
+    'documents.apps.DocumentsConfig',
 ]
 
 MIDDLEWARE = [

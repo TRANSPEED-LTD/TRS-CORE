@@ -81,6 +81,18 @@ class CompanyRepository:
         except models.Company.DoesNotExist:
             return None
 
+    def get_company_by_vat(self, vat_number: str) -> models.Company | None:
+        """
+        Get company by vat code.
+
+        :param vat_number: Company's VAT number.
+        :return: `models.Company` instance if exists, else None.
+        """
+        try:
+            return models.Company.objects.get(vat_number=vat_number)
+        except models.Company.DoesNotExist:
+            return None
+
     def create_ibans_for_company(
         self,
         bank: models.Bank,

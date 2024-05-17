@@ -8,8 +8,8 @@ should be checked, that request.user has an access to the company he's making re
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from companies.models import Company
-from abstract_idcu.views.base import get_request_payload
-from abstract_idcu.base_exceptions import PermissionNotPermitted
+from base_idcu.views.base import get_request_payload
+from base_idcu.base_exceptions import PermissionNotPermitted
 
 
 class HasSpecificCompanyPermission(permissions.BasePermission):

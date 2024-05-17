@@ -1,6 +1,9 @@
 """Repositories module for `documents` models."""
 
 from decimal import Decimal
+
+from django.db.models import QuerySet
+
 from companies.models import Company
 from documents.models import Order, OrderFile
 
@@ -81,3 +84,12 @@ class DocumentRepository:
             insurance=insurance,
             comments=comments,
         )
+
+    def get_orders_for_company(self, company: Company) -> QuerySet:
+        """
+        Get orders for company.
+
+        :param company: `models.Company` instance to fetch orders.
+        :return: `models.Order` instances.
+        """
+        return Order.objects.filter(forwarder=company)

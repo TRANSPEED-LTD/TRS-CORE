@@ -41,7 +41,7 @@ class DocumentsService:
         insurance: bool,
         files: list[InMemoryUploadedFile],
         comments: str | None = None,
-    ):
+    ) -> types.Order:
         """
         Create an order.
 
@@ -99,6 +99,17 @@ class DocumentsService:
 
         return self._serialize_order(order=order)
 
+    def fetch_orders_for_company(self, company: Company) -> list[types.Order]:
+        """
+        Fetch orders for company.
+
+        :param company: `models.Company` instance to fetch orders.
+        :return: Serialized `models.Order` instances.
+        """
+        orders = self.document_repository.get_orders_for_company(company=company)
+        return [self._serialize_order(order) for order in orders]
+
+
     def _serialize_order(self, order: Order) -> types.Order:
         """
         Serialize order.
@@ -107,9 +118,10 @@ class DocumentsService:
         :return: Serialized `models.Order` instance.
         """
 
-        order_files = [get_full_url_for_media_files(file) for file in order.files.all()]
+        order_files = [get_full_url_for_media_files(file) for file in order.files]
 
         return types.Order(
+            order_id=order.id,
             shipper_company_vat=order.shipper.vat_number,
             career_company_vat=order.career.vat_number,
             start_location=order.start_location,

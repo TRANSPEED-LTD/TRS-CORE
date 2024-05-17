@@ -7,6 +7,7 @@ from typing import TypedDict
 class Order(TypedDict):
     """Order details."""
 
+    order_id: int
     shipper_company_vat: str
     career_company_vat: str
     start_location: str

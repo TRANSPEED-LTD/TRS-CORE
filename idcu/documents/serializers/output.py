@@ -7,9 +7,9 @@ from base_idcu.serializers.base import BasicSerializer
 class OrderResponse(BasicSerializer):
     """Serializer for order response."""
 
+    order_id = serializers.IntegerField()
     shipper_company_vat = serializers.CharField()
     career_company_vat = serializers.CharField()
-
     start_location = serializers.CharField()
     end_location = serializers.CharField()
     transportation_type = serializers.CharField()

@@ -1,6 +1,6 @@
 """Module defining custom exceptions for `companies` package."""
 
-from abstract_idcu.base_exceptions import WebHttpException
+from base_idcu.base_exceptions import WebHttpException
 
 
 class CompanyIdentifiersNotProvidedError(WebHttpException):

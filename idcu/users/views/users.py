@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from abstract_idcu.views.base import IDCUView
+from base_idcu.views.base import IDCUView
 from users.views.base import BaseUserView
 from users.serializers.output import UserResponse, PongResponse
 from users.serializers.input import UserToCreate, UserToLogin, Ping

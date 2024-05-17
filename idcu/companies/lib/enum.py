@@ -1,14 +1,5 @@
 """Module containing enums for `companies` package."""
-from enum import Enum
-
-
-class ModelChoice(Enum):
-    """Enum used to create choice field in models."""
-
-    @classmethod
-    def choices(cls):
-        """Creates tuple from the class name and value fields."""
-        return tuple((x.name, x.value) for x in cls)
+from base_idcu.lib.enum import ModelChoice
 
 
 class CompanyParty(ModelChoice):
@@ -20,7 +11,7 @@ class CompanyParty(ModelChoice):
 
 class PaymentDetails(ModelChoice):
     """Payment details types."""
-    INTERNATION_SEA_SHIPPING = "INTERNATION_SEA_SHIPPING"
+    INTERNATION_SEA_SHIPPING = "INTERNATION SEA SHIPPING"
 
 
 class Currency(ModelChoice):

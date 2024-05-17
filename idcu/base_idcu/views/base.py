@@ -11,7 +11,7 @@ from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer
 from rest_framework.exceptions import APIException
 
-from abstract_idcu.serializers.base import BasicSerializer
+from base_idcu.serializers.base import BasicSerializer
 from companies.exceptions import WebHttpException
 
 

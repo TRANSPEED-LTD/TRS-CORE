@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from abstract_idcu.views.base import IDCUView
-from abstract_idcu.base_permissions import HasSpecificCompanyPermission
+from base_idcu.views.base import IDCUView
+from base_idcu.base_permissions import HasSpecificCompanyPermission
 from companies.views.base import BaseCompanyView
 from companies.serializers.output import CompanyResponse
 from companies.serializers.input import CompanyToCreateRequest, CompanyToUpdateRequest, CompanyToFetchRequest

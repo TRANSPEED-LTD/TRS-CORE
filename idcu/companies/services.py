@@ -9,6 +9,7 @@ from companies.repositories import CompanyRepository
 from users.repositories import UserRepository
 from companies.lib import types
 from companies.lib.utils import check_iban_validity
+from companies.lib.enum import CompanyParty
 from companies import models, exceptions
 
 
@@ -148,6 +149,9 @@ class CompanyServices:
 
         :raises CompanyAlreadyExists: If company already exists with requested name.
         """
+        if user.company and party_type == CompanyParty.FORWARDER.value:
+            raise exceptions.CompanyAlreadyExistError(f"User already has attached to forwarder company {user.company.name}")
+
         if self.company_repository.get_company_by_name_or_vat(vat=vat_number, name=name):
             raise exceptions.CompanyAlreadyExistError(
                 f"Company already exists by provided VAT `{vat_number}` or NAME `{name}`"
@@ -170,7 +174,8 @@ class CompanyServices:
                 account_number=iban["account_number"],
             )
 
-        self.user_repository.add_company_to_user(user=user, company=company)
+        if party_type == CompanyParty.FORWARDER.value:
+            self.user_repository.add_company_to_user(user=user, company=company)
 
         return self._serialize_company(company=company)
 

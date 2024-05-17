@@ -1,6 +1,6 @@
 """Exceptions raised from `users` package."""
 
-from abstract_idcu.base_exceptions import WebHttpException
+from base_idcu.base_exceptions import WebHttpException
 
 
 class UserCreationError(WebHttpException):

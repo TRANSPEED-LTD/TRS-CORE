@@ -1,8 +1,7 @@
 """Module with input serializers for `company/*` endpoints."""
 
-from typing import Any
 from rest_framework import serializers
-from abstract_idcu.serializers.base import BasicSerializer
+from base_idcu.serializers.base import BasicSerializer
 from companies.lib.enum import CompanyParty
 from rest_framework.exceptions import ValidationError
 

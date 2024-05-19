@@ -61,7 +61,12 @@ class CompanyToUpdateRequest(BasicSerializer):
 
 
 class CompanyToFetchRequest(BasicSerializer):
-    """Serializer to input Company identifier details to fetch."""
+    """Serializer to input identifier details to fetch companies."""
 
-    name = serializers.CharField(allow_null=True, required=False)
-    vat_number = serializers.CharField(allow_null=True, required=False)
+    search_keyword = serializers.CharField(allow_null=False)
+    company_type = serializers.ChoiceField(
+        choices=(
+            ("CAREER", "CAREER"),
+            ("SHIPPER", "SHIPPER")
+        )
+    )

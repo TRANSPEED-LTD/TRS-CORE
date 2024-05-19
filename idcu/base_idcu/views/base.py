@@ -11,7 +11,7 @@ from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer
 from rest_framework.exceptions import APIException
 
-from base_idcu.serializers.base import BasicSerializer
+from base_idcu.serializers.base import BasicSerializer, EmptyInputRequest
 from companies.exceptions import WebHttpException
 
 
@@ -38,7 +38,7 @@ class IDCUView(APIView):
     """Abstract base class API views for `company` `inventory` and `document` apps."""
 
     # input serializer
-    in_serializer_cls: type[BaseSerializer] | None = None
+    in_serializer_cls: type[BaseSerializer] | None = EmptyInputRequest
     in_serializer_kwargs: dict = {}
 
     def post(self, request, *args, **kwargs):

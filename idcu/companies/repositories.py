@@ -1,7 +1,7 @@
 """Repositories module for `Company` model."""
 
 from companies import models, exceptions
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 
 class CompanyRepository:
@@ -61,6 +61,19 @@ class CompanyRepository:
         company.save()
 
         return company
+
+    def get_companies_by_keyword(self, search_keyword: str, company_type: str) -> QuerySet[models.Company]:
+        """
+        Fetch forwarder company for given user.
+
+        :param search_keyword: The keyword to filter companies.
+        :param company_type: Company party types to filter.
+        :return: Queryset of `models.Company` instances.
+        """
+        return models.Company.objects.filter(
+            Q(name__icontains=search_keyword) | Q(vat_number__icontains=search_keyword),
+            party_type=company_type,
+        )
 
     def get_company_by_name_or_vat(self, name: str | None = None, vat: str | None = None) -> models.Company | None:
         """

@@ -14,3 +14,8 @@ class BasicSerializer(serializers.Serializer):
     def create(self, validated_data: Any) -> None:
         """The method is called to save field for an instance that already exists."""
         super().create(validated_data)
+
+
+class EmptyInputRequest(BasicSerializer):
+    """Serializer to handle empty requests."""
+    pass

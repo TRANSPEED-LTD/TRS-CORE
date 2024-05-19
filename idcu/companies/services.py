@@ -20,6 +20,32 @@ class CompanyServices:
         self.company_repository = CompanyRepository()
         self.user_repository = UserRepository()
 
+    def fetch_forwarder_company_for_user(self, user: TRSUser) -> types.Company:
+        """
+        Fetch forwarder company for given user.
+
+        :param user: `models.TRSUser` instance for fetch forwarder company.
+        :return: Serialized `models.Company` instance for given user.
+
+        :raises CompanyNotFoundError: If user is not attached to any forwarder companies.
+        """
+        forwarder_company = user.company
+        if not forwarder_company:
+            raise exceptions.CompanyNotFoundError(f"{user.username} is not attached to any forwarder companies.")
+
+        return self._serialize_company(user.company)
+
+    def fetch_company_by_keyword(self, search_keyword: str, company_type: str) -> list[types.Company]:
+        """
+        Fetch companies by provided keyword.
+
+        :param search_keyword: The keyword to filter companies.
+        :param company_type: Company party types to filter.
+        :return: Serialized list `models.Company` instances.
+        """
+        companies = self.company_repository.get_companies_by_keyword(search_keyword=search_keyword, company_type=company_type)
+        return [self._serialize_company(company) for company in companies]
+
     def fetch_company_by_vat(self, vat: str) -> types.Company:
         """
         Fetch company by code.

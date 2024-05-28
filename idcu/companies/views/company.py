@@ -5,7 +5,7 @@ from typing import Any
 from base_idcu.views.base import IDCUView
 from companies.views.base import BaseCompanyView
 from companies.serializers.output import CompanyResponse
-from companies.serializers.input import CompanyToCreateRequest, CompanyToUpdateRequest, CompanyToFetchRequest
+from companies.serializers.input import CompanyToCreateRequest, CompanyToUpdateRequest, CompanyToDeleteRequest, CompanyToFetchRequest
 
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -88,5 +88,25 @@ class CompanyUpdateView(BaseCompanyView, IDCUView):
         :return: Serialized response.
         """
         response_data = self.service_class.update_company(**request_params)
+
+        return CompanyResponse(response_data).data
+    
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+class CompanyDeleteView(BaseCompanyView, IDCUView):
+    """Handles request to the `company/<str:delete-company>/` endpoint."""
+
+    http_method_names = ['delete']
+    in_serializer_cls = CompanyToDeleteRequest
+
+    def process_request(self, request_params: Any) -> CompanyResponse:
+        """
+        process request for `company/delete-company/` endpoint.
+
+        :param request_params: Request parameters.
+        :return: Serialized response.
+        """
+        response_data = self.service_class.delete_company(**request_params)
 
         return CompanyResponse(response_data).data

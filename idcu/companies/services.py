@@ -212,6 +212,9 @@ class CompanyServices:
         address: str,
         vat_number: str,
         ibans: list[types.Iban],
+        contact_name: str,
+        contact_number: str,
+        contact_email: str,
     ) -> types.Company:
         """
         Update company instance.
@@ -220,6 +223,9 @@ class CompanyServices:
         :param address: Jurisdiction address for company.
         :param vat_number: VAT number for company.
         :param ibans: List of company's IBANs.
+        :param contact_name: Name of the contact person.
+        :param contact_number: NUmber of the contact person.
+        :param contact_email: Email of the contact person.
         :return: Serialized updated `models.Company` instance.
         """
         company = self.company_repository.get_company_by_name_or_vat(vat=vat_number)
@@ -232,10 +238,52 @@ class CompanyServices:
             company=company,
             name=name,
             address=address,
+            contact_name = contact_name,
+            contact_number = contact_number,
+            contact_email = contact_email,
         )
 
         for iban in ibans:
             self.update_ibans_for_company(
+                company=company,
+                bank_name=iban["bank_name"],
+                currency=iban["currency"],
+                account_number=iban["account_number"],
+            )
+
+        return self._serialize_company(company)
+    # NEEDS WORK ON
+    @transaction.atomic
+    def delete_company(
+        self,
+        name: str,
+        address: str,
+        vat_number: str,
+        ibans: list[types.Iban],
+    ) -> types.Company:
+        """
+        Delete company instance.
+
+        :param name: Company's name.
+        :param address: Jurisdiction address for company.
+        :param vat_number: VAT number for company.
+        :param ibans: List of company's IBANs.
+        :return: Serialized updated `models.Company` instance. ????
+        """
+        company = self.company_repository.get_company_by_name_or_vat(vat=vat_number)
+        if company is None:
+            raise exceptions.CompanyNotFoundError(
+                f"Company not found by provided VAT `{vat_number}`"
+            )
+
+        company = self.company_repository.delete_company(
+            company=company,
+            name=name,
+            address=address,
+        )
+
+        for iban in ibans:
+            self.delete_ibans_for_company(
                 company=company,
                 bank_name=iban["bank_name"],
                 currency=iban["currency"],

@@ -47,6 +47,9 @@ class CompanyRepository:
         company: models.Company,
         name: str,
         address: str,
+        contact_name: str,
+        contact_number: str,
+        contact_email: str,
     ) -> models.Company:
         """
         Update company instance.
@@ -54,11 +57,37 @@ class CompanyRepository:
         :param company: Company to update.
         :param name: Company's name.
         :param address: Company's address.
+        :param contact_name: Contact person's name.
+        :param contact_number: Contact person's number.
+        :param contact_email: Contact person's email.
         :return: Updated `models.Company` instance.
         """
         company.name = name
         company.address = address
+        company.contact_name = contact_name,
+        company.contact_number = contact_number,
+        company.contact_email = contact_email,
         company.save()
+
+        return company
+    
+    def delete_company(  ### NEEDS WORKON
+        self,
+        company: models.Company,
+        name: str,
+        address: str,
+    ) -> models.Company:
+        """
+        Delete company instance.
+
+        :param company: Company to delete.
+        :param name: Company's name.
+        :param address: Company's address.
+        :return: Updated `models.Company` instance.
+        """
+        company.name = name
+        company.address = address
+        company.delete()
 
         return company
 

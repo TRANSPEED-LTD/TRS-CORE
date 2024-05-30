@@ -22,6 +22,9 @@ class CompanyToCreateRequest(BasicSerializer):
     address = serializers.CharField(allow_null=False, required=True)
     vat_number = serializers.CharField(allow_null=False, required=True)
     ibans = serializers.ListField(child=IbanToCreate(), required=False)
+    contact_name = serializers.CharField(allow_null=False, required=True)
+    contact_number = serializers.CharField(allow_null=False, required=True)
+    contact_email = serializers.CharField(allow_null=False, required=True)
 
     def validate(self, data):
         """Custom validation method for fields."""
@@ -29,7 +32,7 @@ class CompanyToCreateRequest(BasicSerializer):
         party_type = data['party_type']
         ibans = data.get('ibans')
 
-        if (party_type == CompanyParty.SHIPPER.value or CompanyParty.CAREER.value) and ibans is None:
+        if (party_type == CompanyParty.FORWARDER.value or CompanyParty.CARRIER.value) and ibans is None:
             raise ValidationError("At least one IBAN should be provided for company.")
 
         return data
@@ -72,12 +75,12 @@ class CompanyToDeleteRequest(BasicSerializer):  ### NEEDS WORK OUT
 
     name = serializers.CharField(allow_null=False, required=True)
     party_type = serializers.ChoiceField(choices=CompanyParty.choices(), required=True)
-    address = serializers.CharField(allow_null=False, required=True)
+    # address = serializers.CharField(allow_null=False, required=True)
     vat_number = serializers.CharField(allow_null=False, required=True)
     ibans = serializers.ListField(child=IbanToCreate(), required=False)
-    contact_name = serializers.CharField(allow_null=False, required=True)
-    contact_number = serializers.CharField(allow_null=False, required=True)
-    contact_email = serializers.CharField(allow_null=False, required=True)
+    # contact_name = serializers.CharField(allow_null=False, required=True)
+    # contact_number = serializers.CharField(allow_null=False, required=True)
+    # contact_email = serializers.CharField(allow_null=False, required=True)
 
     def validate(self, data):
         """Custom validation method for fields."""

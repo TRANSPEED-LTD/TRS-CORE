@@ -75,21 +75,21 @@ class CompanyRepository:
         self,
         company: models.Company,
         name: str,
-        address: str,
+        vat_number: str,
     ) -> models.Company:
         """
         Delete company instance.
 
         :param company: Company to delete.
         :param name: Company's name.
-        :param address: Company's address.
-        :return: Updated `models.Company` instance.
+        :param vat_number: Company's vat number.
+        :return: deleted `models.Company` instance.
         """
         company.name = name
-        company.address = address
+        company.vat_number = vat_number
         company.delete()
 
-        return company
+        return None
 
     def get_companies_by_keyword(self, search_keyword: str, company_type: str) -> QuerySet[models.Company]:
         """
@@ -160,13 +160,18 @@ class CompanyRepository:
             account_number=account_number,
         )
 
-    def delete_ibans_for_company(self, company: models.Company) -> None:
+    def delete_ibans_for_company(self, company: models.Company, bank: str, currency: str, account_number: str) -> None:
         """
         Delete IBAN instances.
 
         :param company: `models.Company` instance.
         """
-        models.Iban.objects.filter(company=company).delete()
+        models.Iban.objects.filter(
+            company=company,
+            bank=bank,
+            currency=currency,
+            account_number=account_number
+            ).delete()
 
 
     def get_bank_by_name(self, bank_name: str) -> models.Bank | None:
@@ -196,4 +201,17 @@ class CompanyRepository:
 
         except models.Iban.DoesNotExist:
             return None
+        
+    # def get_iban_by_company(self, company: models.Company) -> models.Iban | None:
+    #     """
+    #     Get iban by company.
+
+    #     :param company: Iban's company.
+    #     :return: `models.Iban` instance if exists or None.
+    #     """
+    #     try:
+    #         return models.Iban.objects.get(account_number=account_number, bank=bank)
+
+    #     except models.Iban.DoesNotExist:
+    #         return None
 

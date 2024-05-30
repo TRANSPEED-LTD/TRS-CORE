@@ -87,7 +87,8 @@ class CompanyUpdateView(BaseCompanyView, IDCUView):
         :param request_params: Request parameters.
         :return: Serialized response.
         """
-        response_data = self.service_class.update_company(**request_params)
+        user = self.request.user
+        response_data = self.service_class.update_company(**request_params, user=user)
 
         return CompanyResponse(response_data).data
     
@@ -97,7 +98,7 @@ class CompanyUpdateView(BaseCompanyView, IDCUView):
 class CompanyDeleteView(BaseCompanyView, IDCUView):
     """Handles request to the `company/<str:delete-company>/` endpoint."""
 
-    http_method_names = ['delete']
+    http_method_names = ['post']
     in_serializer_cls = CompanyToDeleteRequest
 
     def process_request(self, request_params: Any) -> CompanyResponse:
@@ -107,6 +108,7 @@ class CompanyDeleteView(BaseCompanyView, IDCUView):
         :param request_params: Request parameters.
         :return: Serialized response.
         """
-        response_data = self.service_class.delete_company(**request_params)
+        user = self.request.user
+        response_data = self.service_class.delete_company(**request_params, user=user)
 
         return CompanyResponse(response_data).data

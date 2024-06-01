@@ -25,7 +25,7 @@ class DocumentRepository:
         self,
         forwarder_company: Company,
         shipper_company: Company,
-        career_company: Company,
+        carrier_company: Company,
         start_location: str,
         end_location: str,
         transportation_type: str,
@@ -46,7 +46,7 @@ class DocumentRepository:
 
         :param forwarder_company: The owner company for this order.
         :param shipper_company: Shipper company for this order.
-        :param career_company: Career company for this order.
+        :param carrier_company: Carrier company for this order.
         :param start_location: Start location for order.
         :param end_location: End/final location for order.
         :param transportation_type: Transportation type.
@@ -68,7 +68,7 @@ class DocumentRepository:
         return Order.objects.create(
             forwarder=forwarder_company,
             shipper=shipper_company,
-            career=career_company,
+            carrier=carrier_company,
             start_location=start_location,
             end_location=end_location,
             transportation_type=transportation_type,

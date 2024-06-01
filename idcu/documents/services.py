@@ -25,7 +25,7 @@ class DocumentsService:
         self,
         forwarder_company: Company,
         shipper_company_vat: str,
-        career_company_vat: str,
+        carrier_company_vat: str,
         start_location: str,
         end_location: str,
         transportation_type: str,
@@ -47,7 +47,7 @@ class DocumentsService:
 
         :param forwarder_company: The owner company of this order.
         :param shipper_company_vat: Shipper company's VAT code.
-        :param career_company_vat: Career company's VAT code.
+        :param carrier_company_vat: Carrier company's VAT code.
         :param start_location: Start location for order.
         :param end_location: End/final location for order.
         :param transportation_type: Transportation type.
@@ -64,20 +64,20 @@ class DocumentsService:
         :param files: Files to attach to the order.
         :param comments: Additional comments for the order.
 
-        :raises CompanyNotFoundError: If company not found for requested shipper and career VAT codes.
+        :raises CompanyNotFoundError: If company not found for requested shipper and carrier VAT codes.
         """
         shipper_company = self.company_repository.get_company_by_vat(vat_number=shipper_company_vat)
         if not shipper_company:
             raise company_exceptions.CompanyNotFoundError("Shipper company not found.")
 
-        career_company = self.company_repository.get_company_by_vat(vat_number=career_company_vat)
-        if not career_company:
-            raise company_exceptions.CompanyNotFoundError("Career company not found.")
+        carrier_company = self.company_repository.get_company_by_vat(vat_number=carrier_company_vat)
+        if not carrier_company:
+            raise company_exceptions.CompanyNotFoundError("Carrier company not found.")
 
         order = self.document_repository.create_order(
             forwarder_company=forwarder_company,
             shipper_company=shipper_company,
-            career_company=career_company,
+            carrier_company=carrier_company,
             start_location=start_location,
             end_location=end_location,
             transportation_type=transportation_type,
@@ -123,7 +123,7 @@ class DocumentsService:
         return types.Order(
             order_id=order.id,
             shipper_company_vat=order.shipper.vat_number,
-            career_company_vat=order.career.vat_number,
+            carrier_company_vat=order.carrier.vat_number,
             start_location=order.start_location,
             end_location=order.end_location,
             transportation_type=order.transportation_type,

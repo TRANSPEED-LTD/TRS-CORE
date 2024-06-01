@@ -9,7 +9,7 @@ class Order(TypedDict):
 
     order_id: int
     shipper_company_vat: str
-    career_company_vat: str
+    carrier_company_vat: str
     start_location: str
     end_location: str
     transportation_type: str

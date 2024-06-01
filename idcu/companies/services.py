@@ -159,8 +159,11 @@ class CompanyServices:
         party_type: str,
         address: str,
         vat_number: str,
-        ibans: list[types.Iban],
         user: TRSUser,
+        ibans: list[types.Iban] | None = None,
+        contact_name: str | None = None,
+        contact_email: str | None = None,
+        phone_number: str | None = None,
     ) -> types.Company:
         """
         Create company instance.
@@ -171,39 +174,50 @@ class CompanyServices:
         :param vat_number: VAT number for company.
         :param ibans: List of company's IBANs.
         :param user: `models.User` instance (Company's main user).
+        :param contact_name: Company's contact person name.
+        :param contact_email: Company's email.
+        :param phone_number: Company's phone number.
         :return: Serialized `models.Company` instance.
 
         :raises CompanyAlreadyExists: If company already exists with requested name.
         """
-        if user.company and party_type == CompanyParty.FORWARDER.value:
-            raise exceptions.CompanyAlreadyExistError(f"User already has attached to forwarder company {user.company.name}")
-
         if self.company_repository.get_company_by_name_or_vat(vat=vat_number, name=name):
             raise exceptions.CompanyAlreadyExistError(
                 f"Company already exists by provided VAT `{vat_number}` or NAME `{name}`"
             )
 
-        company = self.company_repository.create_company(
-            name=name,
-            party_type=party_type,
-            address=address,
-            vat_number=vat_number,
-            contact_email=user.email,
-            contact_number=user.phone_number,
-        )
-
-        for iban in ibans:
-            self.create_ibans_for_company(
-                company=company,
-                bank_name=iban["bank_name"],
-                currency=iban["currency"],
-                account_number=iban["account_number"],
+        if party_type == CompanyParty.FORWARDER.value:
+            return self._create_forwarder_company(
+                name=name,
+                party_type=party_type,
+                address=address,
+                vat_number=vat_number,
+                ibans=ibans,
+                user=user,
             )
 
-        if party_type == CompanyParty.FORWARDER.value:
-            self.user_repository.add_company_to_user(user=user, company=company)
+        if party_type == CompanyParty.CARRIER.value:
+            return self._create_carrier_company(
+                name=name,
+                party_type=party_type,
+                address=address,
+                vat_number=vat_number,
+                ibans=ibans,
+                contact_name=contact_name,
+                contact_email=contact_email,
+                phone_number=phone_number,
+            )
 
-        return self._serialize_company(company=company)
+        if party_type == CompanyParty.SHIPPER.value:
+            return self._create_shipper_company(
+                name=name,
+                party_type=party_type,
+                address=address,
+                vat_number=vat_number,
+                contact_name=contact_name,
+                contact_email=contact_email,
+                phone_number=phone_number,
+            )
 
     @transaction.atomic
     def update_company(
@@ -243,6 +257,126 @@ class CompanyServices:
             )
 
         return self._serialize_company(company)
+
+    def _create_shipper_company(
+        self,
+        name: str,
+        party_type: str,
+        address: str,
+        vat_number: str,
+        contact_name: str | None = None,
+        contact_email: str | None = None,
+        phone_number: str | None = None,
+    ) -> types.Company:
+        """
+        Create shipper company instance.
+
+        :param name: Company's name.
+        :param party_type: Type of company.
+        :param address: Jurisdiction address for company.
+        :param vat_number: VAT number for company.
+        :param contact_name: Company's contact person name.
+        :param contact_email: Company's email.
+        :param phone_number: Company's phone number.
+        :return: Serialized `models.Company` instance.
+        """
+        company = self.company_repository.create_company(
+            name=name,
+            party_type=party_type,
+            address=address,
+            vat_number=vat_number,
+            contact_name=contact_name,
+            contact_email=contact_email,
+            contact_number=phone_number,
+        )
+        return self._serialize_company(company=company)
+
+    def _create_forwarder_company(
+        self,
+        name: str,
+        party_type: str,
+        address: str,
+        vat_number: str,
+        ibans: list[types.Iban],
+        user: TRSUser,
+    ) -> types.Company:
+        """
+        Create forwarder company instance.
+
+        :param name: Company's name.
+        :param party_type: Type of company.
+        :param address: Jurisdiction address for company.
+        :param vat_number: VAT number for company.
+        :param ibans: List of company's IBANs.
+        :param user: `models.User` instance (Company's main user).
+        :return: Serialized `models.Company` instance.
+
+        :raises CompanyAlreadyExists: If company already exists with requested name.
+        """
+        if user.company:
+            raise exceptions.CompanyAlreadyExistError(f"User already has attached to forwarder company {user.company.name}")
+
+        company = self.company_repository.create_company(
+            name=name,
+            party_type=party_type,
+            address=address,
+            vat_number=vat_number,
+            contact_email=user.email,
+            contact_number=user.phone_number,
+        )
+        for iban in ibans:
+            self.create_ibans_for_company(
+                company=company,
+                bank_name=iban["bank_name"],
+                currency=iban["currency"],
+                account_number=iban["account_number"],
+            )
+        self.user_repository.add_company_to_user(user=user, company=company)
+
+        return self._serialize_company(company=company)
+
+    def _create_carrier_company(
+        self,
+        name: str,
+        party_type: str,
+        address: str,
+        vat_number: str,
+        ibans: list[types.Iban],
+        contact_name: str | None = None,
+        contact_email: str | None = None,
+        phone_number: str | None = None,
+    ) -> types.Company:
+        """
+        Create company instance.
+
+        :param name: Company's name.
+        :param party_type: Type of company.
+        :param address: Jurisdiction address for company.
+        :param vat_number: VAT number for company.
+        :param ibans: List of company's IBANs.
+        :param contact_name: Company's contact person name.
+        :param contact_email: Company's email.
+        :param phone_number: Company's phone number.
+        :return: Serialized `models.Company` instance.
+        """
+        company = self.company_repository.create_company(
+            name=name,
+            party_type=party_type,
+            address=address,
+            vat_number=vat_number,
+            contact_name=contact_name,
+            contact_email=contact_email,
+            contact_number=phone_number,
+        )
+        for iban in ibans:
+            self.create_ibans_for_company(
+                company=company,
+                bank_name=iban["bank_name"],
+                currency=iban["currency"],
+                account_number=iban["account_number"],
+            )
+
+        return self._serialize_company(company=company)
 
     def _serialize_company(self, company: models.Company) -> types.Company:
         """

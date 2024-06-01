@@ -21,7 +21,7 @@ class OrderToCreate(BasicSerializer):
     """Serializer for order to create."""
 
     shipper_company_vat = serializers.CharField(max_length=55, required=True)
-    career_company_vat = serializers.CharField(max_length=55, required=True)
+    carrier_company_vat = serializers.CharField(max_length=55, required=True)
 
     start_location = serializers.CharField(max_length=55, required=True)
     end_location = serializers.CharField(max_length=55, required=True)

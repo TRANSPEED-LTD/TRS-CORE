@@ -21,6 +21,9 @@ class CompanyToCreateRequest(BasicSerializer):
     party_type = serializers.ChoiceField(choices=CompanyParty.choices(), required=True)
     address = serializers.CharField(allow_null=False, required=True)
     vat_number = serializers.CharField(allow_null=False, required=True)
+    contact_name = serializers.CharField(allow_null=True, required=False)
+    contact_email = serializers.CharField(allow_null=True, required=False)
+    phone_number = serializers.CharField(allow_null=True, required=False)
     ibans = serializers.ListField(child=IbanToCreate(), required=False)
 
     def validate(self, data):
@@ -29,7 +32,7 @@ class CompanyToCreateRequest(BasicSerializer):
         party_type = data['party_type']
         ibans = data.get('ibans')
 
-        if (party_type == CompanyParty.SHIPPER.value or CompanyParty.CAREER.value) and ibans is None:
+        if (party_type == CompanyParty.FORWARDER.value or party_type == CompanyParty.CARRIER.value) and ibans is None:
             raise ValidationError("At least one IBAN should be provided for company.")
 
         return data
@@ -54,7 +57,7 @@ class CompanyToUpdateRequest(BasicSerializer):
         party_type = data.pop('party_type')
         ibans = data.get('ibans')
 
-        if (party_type == CompanyParty.SHIPPER.value or CompanyParty.CAREER.value) and ibans is None:
+        if (party_type == CompanyParty.SHIPPER.value or CompanyParty.CARRIER.value) and ibans is None:
             raise ValidationError("At least one IBAN should be provided for company.")
 
         return data
@@ -66,7 +69,7 @@ class CompanyToFetchRequest(BasicSerializer):
     search_keyword = serializers.CharField(allow_null=False)
     company_type = serializers.ChoiceField(
         choices=(
-            ("CAREER", "CAREER"),
+            ("CARRIER", "CARRIER"),
             ("SHIPPER", "SHIPPER")
         )
     )

@@ -40,11 +40,11 @@ class Order(TimestampMixin):
         null=True,
         related_name="shipper_orders",
     )
-    career = models.ForeignKey(
+    carrier = models.ForeignKey(
         Company,
         on_delete=models.SET_NULL,
         null=True,
-        related_name="career_orders"
+        related_name="carrier_orders"
     )
 
     start_location = models.CharField(max_length=55)
@@ -73,7 +73,7 @@ class Order(TimestampMixin):
         return self.orderfile_set.all()
 
     def __str__(self):
-        return f"FORWARDER: {self.forwarder} | SHIPPER: {self.shipper} | CAREER: {self.career}"
+        return f"FORWARDER: {self.forwarder} | SHIPPER: {self.shipper} | CARRIER: {self.carrier}"
 
 
 class OrderFile(TimestampMixin):

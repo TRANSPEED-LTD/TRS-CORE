@@ -9,7 +9,7 @@ class OrderResponse(BasicSerializer):
 
     order_id = serializers.IntegerField()
     shipper_company_vat = serializers.CharField()
-    career_company_vat = serializers.CharField()
+    carrier_company_vat = serializers.CharField()
     start_location = serializers.CharField()
     end_location = serializers.CharField()
     transportation_type = serializers.CharField()

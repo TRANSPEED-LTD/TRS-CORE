@@ -108,6 +108,10 @@ class CompanyDeleteView(BaseCompanyView, IDCUView):
         :param request_params: Request parameters.
         :return: Serialized response.
         """
+
+        # request_params["name"] = None
+        # request_params["ibans"] = None
+        print(request_params)
         user = self.request.user
         response_data = self.service_class.delete_company(**request_params, user=user)
 

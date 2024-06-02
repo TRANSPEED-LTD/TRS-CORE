@@ -74,7 +74,7 @@ class CompanyRepository:
     def delete_company(  ### NEEDS WORKON
         self,
         company: models.Company,
-        name: str,
+        # name: str,
         vat_number: str,
     ) -> models.Company:
         """
@@ -85,7 +85,7 @@ class CompanyRepository:
         :param vat_number: Company's vat number.
         :return: deleted `models.Company` instance.
         """
-        company.name = name
+        # company.name = name
         company.vat_number = vat_number
         company.delete()
 

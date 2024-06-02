@@ -66,32 +66,32 @@ class CompanyToUpdateRequest(BasicSerializer):
         return data
 
 
-class CompanyToDeleteRequest(BasicSerializer):  ### NEEDS WORK OUT
+class CompanyToDeleteRequest(BasicSerializer):
     """
     Serializer to input Company details to delete.
 
     Clean unuseful data, we don't need for next processes.
     """
 
-    name = serializers.CharField(allow_null=False, required=True)
-    party_type = serializers.ChoiceField(choices=CompanyParty.choices(), required=True)
+    # name = serializers.CharField(allow_null=False, required=True)
+    # party_type = serializers.ChoiceField(choices=CompanyParty.choices(), required=True)
     # address = serializers.CharField(allow_null=False, required=True)
     vat_number = serializers.CharField(allow_null=False, required=True)
-    ibans = serializers.ListField(child=IbanToCreate(), required=False)
+    # ibans = serializers.ListField(child=IbanToCreate(), required=False)
     # contact_name = serializers.CharField(allow_null=False, required=True)
     # contact_number = serializers.CharField(allow_null=False, required=True)
     # contact_email = serializers.CharField(allow_null=False, required=True)
 
-    def validate(self, data):
-        """Custom validation method for fields."""
+    # def validate(self, data):
+    #     """Custom validation method for fields."""
+    #     print(data)
+    #     party_type = data.pop('party_type')
+    #     ibans = data.get('ibans')
 
-        party_type = data.pop('party_type')
-        ibans = data.get('ibans')
+    #     if (party_type == CompanyParty.FORWARDER.value or CompanyParty.CARRIER.value) and ibans is None:
+    #         raise ValidationError("At least one IBAN should be provided for company.")
 
-        if (party_type == CompanyParty.FORWARDER.value or CompanyParty.CARRIER.value) and ibans is None:
-            raise ValidationError("At least one IBAN should be provided for company.")
-
-        return data
+    #     return data
 
 
 class CompanyToFetchRequest(BasicSerializer):

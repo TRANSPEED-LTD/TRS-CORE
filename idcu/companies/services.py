@@ -270,10 +270,10 @@ class CompanyServices:
     @transaction.atomic
     def delete_company(
         self,
-        name: str,
+        # name: str,
         # address: str,
         vat_number: str,
-        ibans: list[types.Iban],
+        # ibans: list[types.Iban],
         # contact_name: str,
         # contact_number: str,
         # contact_email: str,
@@ -296,18 +296,19 @@ class CompanyServices:
             raise exceptions.CompanyNotFoundError(
                 f"Company not found by provided VAT: `{vat_number}`"
             )
-        print(company.ibans[0])
-        for iban in ibans:
+        print(company.ibans[0].bank)
+        for iban in company.ibans:
             self.delete_ibans_for_company(
                 company=company,
-                bank_name = iban.get("bank"),
-                currency=iban.get("currency"),
-                account_number=iban.get("account_number"),
+                # bank_name = iban.get("bank"),
+                bank_name = iban.bank,
+                currency=iban.currency,
+                account_number=iban.account_number,
             )
 
         company = self.company_repository.delete_company(
             company=company,
-            name=name,
+            # name=name,
             vat_number=vat_number,
         )
 

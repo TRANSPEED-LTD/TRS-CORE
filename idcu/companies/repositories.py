@@ -160,7 +160,7 @@ class CompanyRepository:
             account_number=account_number,
         )
 
-    def delete_ibans_for_company(self, company: models.Company, bank: str, currency: str, account_number: str) -> None:
+    def delete_ibans_for_company(self, company: models.Company, bank_name: str, currency: str, account_number: str) -> None:
         """
         Delete IBAN instances.
 
@@ -168,7 +168,7 @@ class CompanyRepository:
         """
         models.Iban.objects.filter(
             company=company,
-            bank=bank,
+            bank__bank_name=bank_name,
             currency=currency,
             account_number=account_number
             ).delete()

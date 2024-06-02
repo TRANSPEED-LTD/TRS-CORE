@@ -134,7 +134,7 @@ class CompanyServices:
         :raises IbanAlreadyExistError: If IBAN already exists.
         :raises BankNotFoundError: If bank doesn't exist.
         """
-        self.delete_ibans_for_company(company=company, bank=bank_name, currency=currency, account_number=account_number)
+        self.delete_ibans_for_company(company=company, bank_name=bank_name, currency=currency, account_number=account_number)
         self.create_ibans_for_company(
             company=company,
             bank_name=bank_name,
@@ -143,7 +143,7 @@ class CompanyServices:
         )
 
     @transaction.atomic
-    def delete_ibans_for_company(self, company: models.Company, bank: str, currency: str, account_number: str) -> None:
+    def delete_ibans_for_company(self, company: models.Company, bank_name: str, currency: str, account_number: str) -> None:
         """
         Delete IBAN instances for company.
 
@@ -152,7 +152,7 @@ class CompanyServices:
         """
         self.company_repository.delete_ibans_for_company(
             company=company, 
-            bank=bank, 
+            bank_name=bank_name, 
             currency= currency,
             account_number=account_number
             )
@@ -300,7 +300,7 @@ class CompanyServices:
         for iban in ibans:
             self.delete_ibans_for_company(
                 company=company,
-                bank = iban.get("bank"),
+                bank_name = iban.get("bank"),
                 currency=iban.get("currency"),
                 account_number=iban.get("account_number"),
             )

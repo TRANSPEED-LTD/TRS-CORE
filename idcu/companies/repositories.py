@@ -71,21 +71,19 @@ class CompanyRepository:
 
         return company
     
-    def delete_company(  ### NEEDS WORKON
+    def delete_company(
         self,
         company: models.Company,
-        # name: str,
         vat_number: str,
     ) -> models.Company:
         """
         Delete company instance.
 
         :param company: Company to delete.
-        :param name: Company's name.
         :param vat_number: Company's vat number.
-        :return: deleted `models.Company` instance.
+        :return: None.
         """
-        # company.name = name
+
         company.vat_number = vat_number
         company.delete()
 
@@ -201,17 +199,4 @@ class CompanyRepository:
 
         except models.Iban.DoesNotExist:
             return None
-        
-    # def get_iban_by_company(self, company: models.Company) -> models.Iban | None:
-    #     """
-    #     Get iban by company.
-
-    #     :param company: Iban's company.
-    #     :return: `models.Iban` instance if exists or None.
-    #     """
-    #     try:
-    #         return models.Iban.objects.get(account_number=account_number, bank=bank)
-
-    #     except models.Iban.DoesNotExist:
-    #         return None
 

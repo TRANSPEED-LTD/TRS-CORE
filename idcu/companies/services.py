@@ -134,7 +134,12 @@ class CompanyServices:
         :raises IbanAlreadyExistError: If IBAN already exists.
         :raises BankNotFoundError: If bank doesn't exist.
         """
-        self.delete_ibans_for_company(company=company, bank_name=bank_name, currency=currency, account_number=account_number)
+        self.delete_ibans_for_company(
+            company=company, 
+            bank_name=bank_name, 
+            currency=currency, 
+            account_number=account_number
+            )
         self.create_ibans_for_company(
             company=company,
             bank_name=bank_name,
@@ -194,7 +199,7 @@ class CompanyServices:
                 f"Company already exists by provided VAT `{vat_number}` or NAME `{name}`"
             )
 
-        company = self.company_repository.create_company(  ### ??? contacts ???
+        company = self.company_repository.create_company(
             name=name,
             party_type=party_type,
             address=address,
@@ -266,41 +271,28 @@ class CompanyServices:
             )
 
         return self._serialize_company(company)
-    # NEEDS WORK ON
+
     @transaction.atomic
     def delete_company(
         self,
-        # name: str,
-        # address: str,
         vat_number: str,
-        # ibans: list[types.Iban],
-        # contact_name: str,
-        # contact_number: str,
-        # contact_email: str,
         user: TRSUser,
     ) -> types.Company:
         """
         Delete company instance.
 
-        :param name: Company's name.
-        :param address: Jurisdiction address for company.
         :param vat_number: VAT number for company.
-        :param ibans: List of company's IBANs.
-        :param contact_name: Name of the contact person.
-        :param contact_number: NUmber of the contact person.
-        :param contact_email: Email of the contact person.
-        :return: Serialized deleted `models.Company` instance.
+        :return: None.
         """
         company = self.company_repository.get_company_by_name_or_vat(vat=vat_number)
         if company is None:
             raise exceptions.CompanyNotFoundError(
                 f"Company not found by provided VAT: `{vat_number}`"
             )
-        print(company.ibans[0].bank)
+
         for iban in company.ibans:
             self.delete_ibans_for_company(
                 company=company,
-                # bank_name = iban.get("bank"),
                 bank_name = iban.bank,
                 currency=iban.currency,
                 account_number=iban.account_number,
@@ -308,11 +300,9 @@ class CompanyServices:
 
         company = self.company_repository.delete_company(
             company=company,
-            # name=name,
             vat_number=vat_number,
         )
 
-        # return self._serialize_company(company)
         return None
 
     def _serialize_company(self, company: models.Company) -> types.Company:
@@ -333,7 +323,6 @@ class CompanyServices:
             contact_number=company.contact_number,
             contact_email=company.contact_email,
             ibans=ibans,
-            # active_orders=None,
         )
 
     def _serialize_iban(self, iban: models.Iban) -> types.Iban:

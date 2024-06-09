@@ -34,7 +34,7 @@ class OrderToCreate(BasicSerializer):
     weight = serializers.DecimalField(max_digits=19, decimal_places=2)
     price = serializers.DecimalField(max_digits=19, decimal_places=2)
     currency = serializers.ChoiceField(required=True, choices=Currency.choices())
-    dimension = serializers.CharField(max_length=55, required=True)
+    dimension = serializers.CharField(max_length=55, required=False)
     insurance = serializers.BooleanField(required=True)
     comments = serializers.CharField(max_length=55, required=False)
 

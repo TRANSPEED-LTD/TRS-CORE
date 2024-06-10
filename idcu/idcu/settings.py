@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 
 CORS_ALLOWED_ORIGINS = [
     config('ALLOWED_ORIGINS'),
+    config('STAGING_ORIGINS'),
 ]
 
 

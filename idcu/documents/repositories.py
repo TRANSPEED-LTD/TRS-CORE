@@ -32,13 +32,13 @@ class DocumentRepository:
         container_type: str,
         loading_type: str,
         cargo_type: str,
-        cargo_category: str,
         cargo_name: str,
         weight: Decimal,
         price: Decimal,
         currency: str,
-        dimension: str,
         insurance: bool,
+        cargo_category: str | None = None,
+        dimension: str | None = None,
         comments: str | None = None,
     ) -> Order:
         """

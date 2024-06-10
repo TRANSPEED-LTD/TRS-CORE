@@ -30,16 +30,16 @@ class DocumentsService:
         end_location: str,
         transportation_type: str,
         container_type: str,
-        loading_type: str,
         cargo_type: str,
         cargo_category: str,
         cargo_name: str,
         weight: Decimal,
         price: Decimal,
         currency: str,
-        dimension: str,
         insurance: bool,
         files: list[InMemoryUploadedFile],
+        loading_type: str | None = None,
+        dimension: str | None = None,
         comments: str | None = None,
     ) -> types.Order:
         """

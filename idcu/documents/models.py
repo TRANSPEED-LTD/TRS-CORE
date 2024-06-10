@@ -63,7 +63,7 @@ class Order(TimestampMixin):
     weight = models.DecimalField(decimal_places=2, max_digits=19)
     price = models.DecimalField(decimal_places=2, max_digits=19)
     currency = models.CharField(max_length=55, choices=Currency.choices())
-    dimension = models.CharField(max_length=55)
+    dimension = models.CharField(max_length=55, null=True)
     insurance = models.BooleanField(default=False)
     comments = models.CharField(max_length=255, null=True)
     status = models.CharField(max_length=25, choices=OrderStatus.choices())

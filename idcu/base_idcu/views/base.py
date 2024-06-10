@@ -26,6 +26,9 @@ def get_request_payload(request: Request) -> dict | QueryDict:
     request_params = request.query_params if request.method == "GET" else request.data
     url_params = request.parser_context["kwargs"]
 
+    if request.FILES:
+        request.data.setlist('files', request.data.pop('files[]'))
+
     if url_params:
         params = request_params.copy()
         params.update(url_params)

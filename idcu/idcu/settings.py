@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 CORS_ALLOWED_ORIGINS = [
-    config('ALLOWED_ORIGINS'),
+    config('LOCAL_ORIGINS'),
     config('STAGING_ORIGINS'),
 ]
 

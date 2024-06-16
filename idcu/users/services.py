@@ -86,7 +86,7 @@ class UserService:
         if fetch_company_details:
             company = self.company_service.fetch_forwarder_company_for_user(user=user)
             return {
-                "first_name": user.username,
+                "first_name": user.first_name,
                 "last_name": user.last_name,
                 "phone_number": user.phone_number,
                 "email": user.email,
@@ -95,7 +95,7 @@ class UserService:
             }
 
         return {
-            "first_name": user.username,
+            "first_name": user.first_name,
             "last_name": user.last_name,
             "phone_number": user.phone_number,
             "email": user.email,

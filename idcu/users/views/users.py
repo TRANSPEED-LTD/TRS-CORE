@@ -5,7 +5,7 @@ from typing import Any
 from base_idcu.views.base import IDCUView
 from users.views.base import BaseUserView
 from users.serializers.output import UserResponse, PongResponse
-from users.serializers.input import UserToCreate, UserToLogin, Ping
+from users.serializers.input import UserToCreate, UserToLogin, UserToFetch, Ping
 
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -26,6 +26,27 @@ class UserCreateView(BaseUserView, IDCUView):
         :return: Serialized response.
         """
         response_data = self.service_class.create_user(**request_params)
+
+        return UserResponse(response_data).data
+
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+class UserView(BaseUserView, IDCUView):
+    """Handles request to the `users/get-user-info/` endpoint."""
+
+    http_method_names = ['get']
+    in_serializer_cls = UserToFetch
+
+    def process_request(self, request_params: Any) -> UserResponse:
+        """
+        process request for `user/get-user-info/` endpoint.
+
+        :param request_params: Request parameters.
+        :return: Serialized response.
+        """
+        user = self.request.user
+        response_data = self.service_class.fetch_user_with_company(user=user)
 
         return UserResponse(response_data).data
 

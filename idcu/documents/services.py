@@ -8,6 +8,8 @@ from documents.lib import types
 from documents.lib.utils import get_full_url_for_media_files
 from documents.models import Order
 from documents.repositories import DocumentRepository
+from documents import exceptions
+
 from companies.repositories import CompanyRepository
 from companies import exceptions as company_exceptions
 from companies.models import Company
@@ -97,7 +99,22 @@ class DocumentsService:
         for file in files:
             self.document_repository.create_order_file(file=file, order=order)
 
-        return self._serialize_order(order=order)
+        return self._serialize_order(order=order, fetch_full_details=True)
+
+    def fetch_order_by_id(self, order_id: int):
+        """
+        Fetch specific order details by order id.
+
+        :param order_id: Unique order identifier ID.
+        :return: Full order details for requested ID.
+
+        :raises OrderNotFound: if no order found by requested code.
+        """
+        order = self.document_repository.get_order_by_id(order_id=order_id)
+        if order is None:
+            raise exceptions.OrderNotFound(f"Order not found by requested id '{order_id}'")
+
+        return self._serialize_order(order=order, fetch_full_details=True)
 
     def fetch_orders_for_company(self, company: Company) -> list[types.Order]:
         """
@@ -107,36 +124,52 @@ class DocumentsService:
         :return: Serialized `models.Order` instances.
         """
         orders = self.document_repository.get_orders_for_company(company=company)
-        return [self._serialize_order(order) for order in orders]
+        return [self._serialize_order(order=order, fetch_full_details=False) for order in orders]
 
-
-    def _serialize_order(self, order: Order) -> types.Order:
+    def _serialize_order(self, order: Order, fetch_full_details: bool = True) -> types.Order:
         """
         Serialize order.
 
         :param order: `models.Order` instance to serialized.
         :return: Serialized `models.Order` instance.
         """
-
-        order_files = [get_full_url_for_media_files(file) for file in order.files]
+        if fetch_full_details:
+            order_files = [get_full_url_for_media_files(file) for file in order.files]
+            shipper_company = order.shipper
+            carrier_company = order.carrier
+            return types.FullOrderDetails(
+                order_id=order.id,
+                shipper_company_name=shipper_company.name,
+                carrier_company_name=carrier_company.name,
+                shipper_company_vat=shipper_company.vat_number,
+                carrier_company_vat=carrier_company.vat_number,
+                start_location=order.start_location,
+                end_location=order.end_location,
+                transportation_type=order.transportation_type,
+                container_type=order.container_type,
+                loading_type=order.loading_type,
+                cargo_type=order.cargo_type,
+                cargo_category=order.cargo_category,
+                cargo_name=order.cargo_name,
+                weight=order.weight,
+                price=order.price,
+                currency=order.currency,
+                dimension=order.dimension,
+                insurance=order.insurance,
+                comments=order.comments,
+                files=order_files,
+                created_datetime=order.date_created,
+            )
 
         return types.Order(
             order_id=order.id,
-            shipper_company_vat=order.shipper.vat_number,
-            carrier_company_vat=order.carrier.vat_number,
             start_location=order.start_location,
             end_location=order.end_location,
             transportation_type=order.transportation_type,
-            container_type=order.container_type,
-            loading_type=order.loading_type,
             cargo_type=order.cargo_type,
             cargo_category=order.cargo_category,
             cargo_name=order.cargo_name,
             weight=order.weight,
-            price=order.price,
-            currency=order.currency,
             dimension=order.dimension,
-            insurance=order.insurance,
-            comments=order.comments,
-            files=order_files,
+            created_datetime=order.date_created,
         )

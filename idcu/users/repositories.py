@@ -70,8 +70,8 @@ class UserRepository:
         """
         try:
             user = TRSUser.objects.get(email=email)
-            if not user.check_password(password):
-                return None
-            return user
+            if user.check_password(password):
+                return user
+
         except TRSUser.DoesNotExist:
             return None

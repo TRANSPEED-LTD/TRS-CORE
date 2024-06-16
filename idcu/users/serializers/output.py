@@ -18,7 +18,7 @@ class UserResponse(BasicSerializer):
     email = serializers.EmailField()
     phone_number = serializers.CharField()
     token = serializers.CharField()
-    attached_company = UserCompanyEntry()
+    attached_company = UserCompanyEntry(required=False, allow_null=True)
 
 
 class PongResponse(BasicSerializer):

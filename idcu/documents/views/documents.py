@@ -57,7 +57,7 @@ class OrdersView(BaseDocumentView, IDCUView):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 class OrderView(BaseDocumentView, IDCUView):
-    """Handles request to the `company/<str:get-orders>/` endpoint."""
+    """Handles request to the `company/<str:get-order>/` endpoint."""
 
     http_method_names = ['get']
     in_serializer_cls = OrderToFetch
@@ -73,4 +73,4 @@ class OrderView(BaseDocumentView, IDCUView):
         """
         response_data = self.service_class.fetch_order_by_id(order_id=request_params["order_id"])
 
-        return OrderResponse(response_data, many=True).data
+        return OrderResponse(response_data).data

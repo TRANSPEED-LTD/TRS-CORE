@@ -4,6 +4,7 @@ from django.db import IntegrityError, transaction
 from rest_framework.authtoken.models import Token
 
 from users import exceptions, models, repositories
+from companies.services import CompanyServices
 from users.lib import types
 
 
@@ -11,6 +12,7 @@ class UserService:
     """Service class for `users`."""
 
     def __init__(self):
+        self.company_service = CompanyServices()
         self.user_repository = repositories.UserRepository()
 
     @transaction.atomic
@@ -45,9 +47,16 @@ class UserService:
         except IntegrityError as exc:
             raise exceptions.UserCreationError(f"User with `{email}` or `{phone_number}` already exists!") from exc
 
-        token = self.user_repository.get_or_create_token(user=user)
+        return self._serialize_user(user)
 
-        return self._serialize_user(user, token)
+    @transaction.atomic
+    def fetch_user_with_company(self, user: models.TRSUser) -> types.User:
+        """
+        Fetch user.
+
+        :return: Serialized `models.TRSUser` instance.
+        """
+        return self._serialize_user(user=user, fetch_company_details=True)
 
     def login_user(self, email: str, password: str):
         """
@@ -61,21 +70,32 @@ class UserService:
         """
         user = self.user_repository.get_user_by_credentials(email=email, password=password)
         if user is None:
-            exceptions.UserDoesntExistError("Invalid credentials provided.")
+            raise exceptions.UserDoesntExistError("Invalid credentials provided.")
 
-        token = self.user_repository.get_or_create_token(user)
+        return self._serialize_user(user=user)
 
-        return self._serialize_user(user=user, token=token)
-
-    def _serialize_user(self, user: models.TRSUser, token: Token) -> types.User:
+    def _serialize_user(self, user: models.TRSUser, fetch_company_details: bool = False) -> types.User:
         """
         Serialize `models.User` instance.
 
         :param user: `models.User` instance.
         :return: Serialized `models.User` instance.
         """
+        token = self.user_repository.get_or_create_token(user=user)
+
+        if fetch_company_details:
+            company = self.company_service.fetch_forwarder_company_for_user(user=user)
+            return {
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "phone_number": user.phone_number,
+                "email": user.email,
+                "token": token.key,
+                "attached_company": company,
+            }
+
         return {
-            "first_name": user.username,
+            "first_name": user.first_name,
             "last_name": user.last_name,
             "phone_number": user.phone_number,
             "email": user.email,

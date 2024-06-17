@@ -85,6 +85,18 @@ class DocumentRepository:
             comments=comments,
         )
 
+    def get_order_by_id(self, order_id: int):
+        """
+        Get order for requested order_id:
+
+        :param order_id: Unique order identifier.
+        :return: `models.Order` instance.
+        """
+        try:
+            return Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return None
+
     def get_orders_for_company(self, company: Company) -> QuerySet:
         """
         Get orders for company.
@@ -92,4 +104,4 @@ class DocumentRepository:
         :param company: `models.Company` instance to fetch orders.
         :return: `models.Order` instances.
         """
-        return Order.objects.filter(forwarder=company)
+        return Order.objects.filter(forwarder=company).order_by("-date_created")

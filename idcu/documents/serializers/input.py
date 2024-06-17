@@ -67,6 +67,12 @@ class OrderToCreate(BasicSerializer):
         return data
 
 
-class OrderToFetch(BasicSerializer):
+class OrdersToFetch(BasicSerializer):
     """Serializer for order to create."""
     pass
+
+
+class OrderToFetch(BasicSerializer):
+    """Serializer for order to create."""
+
+    order_id = serializers.IntegerField(required=True)

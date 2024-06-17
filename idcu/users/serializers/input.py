@@ -21,6 +21,11 @@ class UserToLogin(BasicSerializer):
     password = serializers.CharField(write_only=True, allow_null=False, required=True)
 
 
+class UserToFetch(BasicSerializer):
+    """Serializer to input `User` details to be fetched."""
+    pass
+
+
 class Ping(BasicSerializer):
     """Serializer to input for ping view."""
 

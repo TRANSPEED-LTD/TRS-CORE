@@ -10,32 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
-from decouple import config
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+env.read_env(overwrite=False)
+
+env.escape_proxy = True
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wgq2bk$_#0--9aby5j)csqyur#p*g%rd4e3_%1ee-%n0s&r(k='
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = env.str('SECRET_KEY', default="secret")
+DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-    config('STAGING_HOST'),
+    env.str('ALLOWED_HOSTS', default='127.0.0.1'),
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    config('LOCAL_ORIGINS'),
-    config('STAGING_ORIGINS'),
+    env.str('ALLOWED_ORIGINS', default='http://localhost:8080'),
 ]
 
 
@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'companies.apps.CompaniesConfig',
     'users.apps.UsersConfig',
     'documents.apps.DocumentsConfig',
-]
+    # extra
+] + ['storages']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -94,8 +95,12 @@ WSGI_APPLICATION = 'idcu.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env.str('RDS_DB_NAME', 'postgres'),
+        'USER': env.str('RDS_DB_USER', 'postgres'),
+        'PASSWORD': env.str('RDS_DB_PASSWORD', 'postgres'),
+        'HOST': env.str('RDS_DB_HOST', 'localhost'),
+        'PORT': env.str('RDS_DB_PORT', '5432'),
     }
 }
 
@@ -133,8 +138,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_REGION_NAME = env.str('REGION', default='eu-central-1')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', default='')
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
-STATIC_URL = 'static/'
+STATIC_URL = env.str('STATIC_URL', default='/static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    env.str('ALLOWED_ORIGINS', default='http://localhost:8080'),
+    env.str('ALLOWED_ORIGINS', default='http://localhost:5173'),
 ]
 
 

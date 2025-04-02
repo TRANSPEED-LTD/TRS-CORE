@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+import socket
 from pathlib import Path
 import environ
 
@@ -32,6 +33,7 @@ DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = [
     env.str('ALLOWED_HOSTS', default='127.0.0.1'),
+    socket.gethostbyname(socket.gethostname()),
 ]
 
 CORS_ALLOWED_ORIGINS = [
